@@ -1,9 +1,9 @@
 import Fastify from 'fastify'
 import 'module-alias/register'
+import pino from 'pino'
 import 'source-map-support/register'
 import { HttpServer } from './HttpServer'
 import { Router } from './Router'
-import pino from 'pino'
 
 const httpServer = new HttpServer(
     Fastify({

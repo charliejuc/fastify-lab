@@ -1,7 +1,7 @@
 import {
     FastifyInstance,
-    RouteShorthandOptionsWithHandler,
-    RouteHandlerMethod
+    RouteHandlerMethod,
+    RouteShorthandOptionsWithHandler
 } from 'fastify'
 import { HttpServerActions } from './interfaces/HttpServerActions'
 
