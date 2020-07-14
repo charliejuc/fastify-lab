@@ -1,17 +1,20 @@
-import 'source-map-support/register'
-import 'module-alias/register'
 import Fastify from 'fastify'
+import 'module-alias/register'
+import 'source-map-support/register'
+import { HttpServer } from './HttpServer'
 
-const fastify = Fastify({
-    logger: true
-})
+const httpServer = new HttpServer(
+    Fastify({
+        logger: true
+    })
+)
 
-fastify.get('/sync', (request, reply) => {
+httpServer.get('/sync', (request, reply) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     reply.send({ type: 'sync' })
 })
 
-fastify.get('/async', async (request, reply) => {
+httpServer.get('/async', async (request, reply) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     reply.code(201)
 
@@ -20,7 +23,10 @@ fastify.get('/async', async (request, reply) => {
     }
 })
 
-fastify.listen(3000).catch((error) => {
-    console.error(error)
-    process.exit(1)
-})
+httpServer
+    .listen(3000)
+    .then(console.log)
+    .catch((error) => {
+        console.error(error)
+        process.exit(1)
+    })
