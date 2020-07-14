@@ -2,26 +2,16 @@ import Fastify from 'fastify'
 import 'module-alias/register'
 import 'source-map-support/register'
 import { HttpServer } from './HttpServer'
+import { Router } from './Router'
 
 const httpServer = new HttpServer(
     Fastify({
         logger: true
     })
 )
+const router = new Router(httpServer)
 
-httpServer.get('/sync', (request, reply) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    reply.send({ type: 'sync' })
-})
-
-httpServer.get('/async', async (request, reply) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    reply.code(201)
-
-    return {
-        type: 'async'
-    }
-})
+router.setupRoutes()
 
 httpServer
     .listen(3000)
