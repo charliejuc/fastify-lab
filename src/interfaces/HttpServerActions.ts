@@ -1,21 +1,33 @@
 export interface GetAction {
-    get(...args: any): any
+    get(...args: unknown[]): unknown
 }
 
 export interface PostAction {
-    post(...args: any): any
+    post(...args: unknown[]): unknown
 }
 
 export interface DeleteAction {
-    delete(...args: any): any
+    delete(...args: unknown[]): unknown
 }
 
 export interface PutAction {
-    delete(...args: any): any
+    delete(...args: unknown[]): unknown
 }
 
 export interface ListenAction {
-    listen(...args: any): Promise<any>
+    listen(...args: unknown[]): Promise<unknown>
+}
+
+export interface DecorateAction {
+    decorate(...args: unknown[]): unknown
+}
+
+export interface RegisterAction {
+    register(...args: unknown[]): unknown
+}
+
+export interface AfterAction {
+    after(...args: unknown[]): unknown | PromiseLike<unknown>
 }
 
 export interface HttpServerActions
@@ -23,4 +35,7 @@ export interface HttpServerActions
         PostAction,
         DeleteAction,
         PutAction,
-        ListenAction {}
+        ListenAction,
+        DecorateAction,
+        RegisterAction,
+        AfterAction {}
