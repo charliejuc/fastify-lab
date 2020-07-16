@@ -9,18 +9,6 @@ export class Router {
     }
 
     setupRoutes(): void {
-        this.httpServer.get('/sync', (request, reply) => {
-            reply.send({ type: 'sync' })
-        })
-
-        this.httpServer.get('/async', async (request, reply) => {
-            reply.code(201)
-
-            return {
-                type: 'async'
-            }
-        })
-
         this.setupAuth()
     }
 
@@ -34,11 +22,9 @@ export class Router {
         this.httpServer.post(
             '/auth',
             async (request, reply) => {
-                reply.code(201)
+                reply.code(200)
 
-                return {
-                    type: request.user
-                }
+                return request.user
             },
             {
                 preValidation: this.httpServer.server.auth([
