@@ -1,12 +1,11 @@
-import { RouteHandlerMethodCustom } from '@/declarations/fastify'
 import {
     FastifyInstance,
     FastifyPluginCallback,
     FastifyPluginOptions,
     RegisterOptions,
+    RouteHandlerMethod,
     RouteShorthandOptions
 } from 'fastify'
-import { FastifyCustom } from './declarations/fastify'
 import { HttpServerActions } from './interfaces/HttpServerActions'
 
 type httpActions = 'get' | 'post' | 'put' | 'delete'
@@ -17,13 +16,13 @@ export class HttpServer implements HttpServerActions {
         this._server = server as FastifyInstance
     }
 
-    get server(): FastifyCustom {
+    get server(): FastifyInstance {
         return this._server
     }
 
     get(
         slug: string,
-        handler: RouteHandlerMethodCustom,
+        handler: RouteHandlerMethod,
         handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         this.httpAction('get', slug, handler, handlerOrOpts)
@@ -32,7 +31,7 @@ export class HttpServer implements HttpServerActions {
 
     post(
         slug: string,
-        handler: RouteHandlerMethodCustom,
+        handler: RouteHandlerMethod,
         handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         this.httpAction('post', slug, handler, handlerOrOpts)
@@ -41,7 +40,7 @@ export class HttpServer implements HttpServerActions {
 
     put(
         slug: string,
-        handler: RouteHandlerMethodCustom,
+        handler: RouteHandlerMethod,
         handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         this.httpAction('put', slug, handler, handlerOrOpts)
@@ -50,7 +49,7 @@ export class HttpServer implements HttpServerActions {
 
     delete(
         slug: string,
-        handler: RouteHandlerMethodCustom,
+        handler: RouteHandlerMethod,
         handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         this.httpAction('delete', slug, handler, handlerOrOpts)
@@ -60,7 +59,7 @@ export class HttpServer implements HttpServerActions {
     private httpAction(
         httpAction: httpActions,
         slug: string,
-        handler: RouteHandlerMethodCustom,
+        handler: RouteHandlerMethod,
         handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         handler !== undefined
@@ -84,7 +83,7 @@ export class HttpServer implements HttpServerActions {
             | (RegisterOptions & FastifyPluginOptions)
             | (() => RegisterOptions & FastifyPluginOptions)
             | undefined
-    ): FastifyCustom & PromiseLike<undefined> {
+    ): FastifyInstance & PromiseLike<undefined> {
         return this._server.register(plugin, opts).after()
     }
 }

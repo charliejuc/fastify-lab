@@ -1,5 +1,4 @@
-import { FastifyCustomRequest } from '@/declarations/fastify'
-import { FastifyReply } from 'fastify'
+import { FastifyReply, FastifyRequest } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
 import fastifyAuth from 'fastify-auth'
 
@@ -23,7 +22,7 @@ async function login(
 }
 
 async function validateUserPasswordFromRequest(
-    request: FastifyCustomRequest,
+    request: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> {
     const body = request.body as any
