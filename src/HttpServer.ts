@@ -1,24 +1,30 @@
+import { RouteHandlerMethodCustom } from '@/declarations/fastify'
 import {
     FastifyInstance,
     FastifyPluginCallback,
+    FastifyPluginOptions,
     RegisterOptions,
-    RouteHandlerMethod,
-    RouteShorthandOptionsWithHandler
+    RouteShorthandOptions
 } from 'fastify'
+import { FastifyCustom } from './declarations/fastify'
 import { HttpServerActions } from './interfaces/HttpServerActions'
 
 type httpActions = 'get' | 'post' | 'put' | 'delete'
 export class HttpServer implements HttpServerActions {
-    private readonly server: FastifyInstance
+    private readonly _server: FastifyInstance
 
     constructor(server: HttpServerActions) {
-        this.server = server as FastifyInstance
+        this._server = server as FastifyInstance
+    }
+
+    get server(): FastifyCustom {
+        return this._server
     }
 
     get(
         slug: string,
-        handler: RouteHandlerMethod,
-        handlerOrOpts?: RouteShorthandOptionsWithHandler
+        handler: RouteHandlerMethodCustom,
+        handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         this.httpAction('get', slug, handler, handlerOrOpts)
         return this
@@ -26,8 +32,8 @@ export class HttpServer implements HttpServerActions {
 
     post(
         slug: string,
-        handler: RouteHandlerMethod,
-        handlerOrOpts?: RouteShorthandOptionsWithHandler
+        handler: RouteHandlerMethodCustom,
+        handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         this.httpAction('post', slug, handler, handlerOrOpts)
         return this
@@ -35,8 +41,8 @@ export class HttpServer implements HttpServerActions {
 
     put(
         slug: string,
-        handler: RouteHandlerMethod,
-        handlerOrOpts?: RouteShorthandOptionsWithHandler
+        handler: RouteHandlerMethodCustom,
+        handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         this.httpAction('put', slug, handler, handlerOrOpts)
         return this
@@ -44,8 +50,8 @@ export class HttpServer implements HttpServerActions {
 
     delete(
         slug: string,
-        handler: RouteHandlerMethod,
-        handlerOrOpts?: RouteShorthandOptionsWithHandler
+        handler: RouteHandlerMethodCustom,
+        handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         this.httpAction('delete', slug, handler, handlerOrOpts)
         return this
@@ -54,52 +60,31 @@ export class HttpServer implements HttpServerActions {
     private httpAction(
         httpAction: httpActions,
         slug: string,
-        handler: RouteHandlerMethod,
-        handlerOrOpts?: RouteShorthandOptionsWithHandler
+        handler: RouteHandlerMethodCustom,
+        handlerOrOpts?: RouteShorthandOptions
     ): HttpServerActions {
         handler !== undefined
-            ? this.server[httpAction](
+            ? this._server[httpAction](
                   slug,
                   handlerOrOpts ?? {},
                   handler
               )
-            : this.server[httpAction](slug, handler)
+            : this._server[httpAction](slug, handler)
 
         return this
     }
 
     async listen(port: number): Promise<string> {
-        return await this.server.listen(port)
+        return await this._server.listen(port)
     }
 
-    decorate(
-        property: string | symbol,
-        value: any,
-        dependencies: string[] | undefined
-    ): HttpServerActions {
-        this.server.decorate(property, value, dependencies)
-        return this
-    }
-
-    register(
+    enablePlugin(
         plugin: FastifyPluginCallback,
-        opts: RegisterOptions
-    ): HttpServerActions {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.server.register(plugin, opts)
-        return this
-    }
-
-    after(
-        afterListener?: (error: Error) => void
-    ): HttpServerActions | PromiseLike<HttpServerActions> {
-        if (afterListener !== undefined) {
-            this.server.after(afterListener)
-            return this
-        }
-
-        return new Promise((resolve, reject) => {
-            this.server.after().then(() => resolve(this), reject)
-        })
+        opts?:
+            | (RegisterOptions & FastifyPluginOptions)
+            | (() => RegisterOptions & FastifyPluginOptions)
+            | undefined
+    ): FastifyCustom & PromiseLike<undefined> {
+        return this._server.register(plugin, opts).after()
     }
 }

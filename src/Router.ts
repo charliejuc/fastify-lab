@@ -20,5 +20,31 @@ export class Router {
                 type: 'async'
             }
         })
+
+        this.setupAuth()
+    }
+
+    private setupAuth(): void {
+        if (
+            this.httpServer.server.validateUserPassword === undefined
+        ) {
+            return
+        }
+
+        this.httpServer.post(
+            '/auth',
+            async (request, reply) => {
+                reply.code(201)
+
+                return {
+                    type: request.user
+                }
+            },
+            {
+                preValidation: this.httpServer.server.auth([
+                    this.httpServer.server.validateUserPassword
+                ])
+            }
+        )
     }
 }

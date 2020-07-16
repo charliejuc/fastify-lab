@@ -3,13 +3,20 @@ import 'source-map-support/register'
 import { HttpServer } from './HttpServer'
 import { Router } from './Router'
 import { setupFastifyServer } from './SetupFastifyServer'
+import fastifyJwtAuthPlugin from './modules/users/infrastructure/fastify/plugins/JwtAuthenticationPlugin'
 
 const httpServer = new HttpServer(setupFastifyServer())
 const router = new Router(httpServer)
 
-router.setupRoutes()
+async function main(): Promise<void> {
+    await httpServer.enablePlugin(fastifyJwtAuthPlugin)
 
-httpServer.listen(3000).catch((error) => {
+    router.setupRoutes()
+
+    await httpServer.listen(3000)
+}
+
+main().catch((error) => {
     console.error(error)
     process.exit(1)
 })

@@ -40,11 +40,19 @@ async function validateUserPasswordFromRequest(
     request.user = user
 }
 
-export default fastifyPlugin((fastify) => {
-    fastify
-        .register(fastifyAuth)
-        .decorate(
-            'validateUserPassword',
-            validateUserPasswordFromRequest
-        )
+const fastifyJwtAuthPlugin = fastifyPlugin(async (fastify) => {
+    try {
+        await fastify
+            .register(fastifyAuth)
+            .decorate(
+                'validateUserPassword',
+                validateUserPasswordFromRequest
+            )
+            .after()
+    } catch (error) {
+        fastify.log.error(error)
+        process.exit(1)
+    }
 })
+
+export default fastifyJwtAuthPlugin

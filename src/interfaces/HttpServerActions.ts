@@ -35,7 +35,4 @@ export interface HttpServerActions
         PostAction,
         DeleteAction,
         PutAction,
-        ListenAction,
-        DecorateAction,
-        RegisterAction,
-        AfterAction {}
+        ListenAction {}
