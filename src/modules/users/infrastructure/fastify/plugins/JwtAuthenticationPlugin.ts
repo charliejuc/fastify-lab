@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
 import fastifyAuth from 'fastify-auth'
+import fastifyJWT from 'fastify-jwt'
 
 // return null user??
 async function login(
@@ -21,32 +22,48 @@ async function login(
     }
 }
 
-async function validateUserPasswordFromRequest(
-    request: FastifyRequest,
-    reply: FastifyReply
-): Promise<void> {
-    const body = request.body as any
-    const invalidCredentials = (): unknown =>
-        reply.code(401).send('Invalid Credentials')
+const fastifyJWTAuthPlugin = fastifyPlugin(async (fastify) => {
+    async function validateUserPasswordFromRequest(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ): Promise<void> {
+        const body = request.body as any
+        const invalidCredentials = (): unknown =>
+            reply.code(401).send('Invalid Credentials')
 
-    const user = await login(body.username, body.password)
+        const user = await login(body.username, body.password)
 
-    if (user === null) {
-        invalidCredentials()
-        return
+        if (user === null) {
+            invalidCredentials()
+            return
+        }
+
+        request.user = user
     }
 
-    request.user = user
-}
+    async function validateJWTFromRequest(
+        request: FastifyRequest,
+        reply: FastifyReply
+    ): Promise<void> {
+        try {
+            await request.jwtVerify()
+        } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            reply.code(401).send(error)
+        }
+    }
 
-const fastifyJwtAuthPlugin = fastifyPlugin(async (fastify) => {
     try {
         await fastify
             .register(fastifyAuth)
+            .register(fastifyJWT, {
+                secret: 'MySuperSecretKey12'
+            })
             .decorate(
                 'validateUserPassword',
                 validateUserPasswordFromRequest
             )
+            .decorate('validateJWT', validateJWTFromRequest)
             .after()
     } catch (error) {
         fastify.log.error(error)
@@ -54,4 +71,4 @@ const fastifyJwtAuthPlugin = fastifyPlugin(async (fastify) => {
     }
 })
 
-export default fastifyJwtAuthPlugin
+export default fastifyJWTAuthPlugin

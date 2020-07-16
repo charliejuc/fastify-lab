@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { HttpServer } from './HttpServer'
+import { RequestUser } from './declarations/user'
 
 export class Router {
     private readonly httpServer: HttpServer
@@ -22,9 +23,12 @@ export class Router {
         this.httpServer.post(
             '/auth',
             async (request, reply) => {
+                const user = request.user as RequestUser
                 reply.code(200)
 
-                return request.user
+                return await reply.jwtSign({
+                    username: user.username
+                })
             },
             {
                 preValidation: this.httpServer.server.auth([
