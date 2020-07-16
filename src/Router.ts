@@ -11,20 +11,25 @@ export class Router {
 
     setupRoutes(): void {
         this.setupAuth()
+
+        this.httpServer.get(
+            '/secure',
+            (request, reply) => {
+                reply.send('This resource in secure.')
+            },
+            {
+                preValidation: this.httpServer.server.auth([
+                    this.httpServer.server.validateJWT
+                ])
+            }
+        )
     }
 
     private setupAuth(): void {
-        if (
-            this.httpServer.server.validateUserPassword === undefined
-        ) {
-            return
-        }
-
         this.httpServer.post(
             '/auth',
             async (request, reply) => {
                 const user = request.user as RequestUser
-                reply.code(200)
 
                 return await reply.jwtSign({
                     username: user.username
