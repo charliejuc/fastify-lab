@@ -2,6 +2,7 @@ import Fastify from 'fastify'
 import 'module-alias/register'
 import pino from 'pino'
 import 'source-map-support/register'
+import jwtAuthenticationPlugin from './modules/users/infrastructure/fastify/JWTAthenticationPlugin'
 import { handleFatalError } from './utils/ErrorUtil'
 
 process.on('uncaughtException', handleFatalError)
@@ -16,16 +17,36 @@ const fastify = Fastify({
 })
 
 async function main(): Promise<void> {
-    fastify.get('/sync', (request, reply) => {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        reply.send({ type: 'sync' })
-    })
+    await fastify.register(jwtAuthenticationPlugin).after()
 
-    fastify.get('/async', async (request, reply) => {
-        return {
-            type: 'async'
+    fastify.post(
+        '/auth',
+        {
+            preValidation: fastify.auth([
+                fastify.validateUserPassword
+            ])
+        },
+        async (request, reply) => {
+            const body = request.body as any
+
+            // eslint-disable-next-line @typescript-eslint/return-await
+            return reply.jwtSign({
+                username: body.username
+            })
         }
-    })
+    )
+
+    fastify.get(
+        '/secure',
+        {
+            preValidation: fastify.auth([fastify.validateJWT])
+        },
+        async (request, reply) => {
+            return {
+                message: 'This resource is secure.'
+            }
+        }
+    )
 
     await fastify.listen(3000)
 }
