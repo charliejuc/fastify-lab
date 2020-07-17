@@ -17,7 +17,7 @@ const fastify = Fastify({
 })
 
 async function main(): Promise<void> {
-    await fastify.register(jwtAuthenticationPlugin).after()
+    await fastify.register(jwtAuthenticationPlugin)
 
     fastify.post(
         '/auth',
